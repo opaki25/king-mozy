@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS gallery_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'landscapes',
+  type TEXT NOT NULL DEFAULT 'image',
+  url TEXT NOT NULL,
+  storage_key TEXT,
+  alt_text TEXT NOT NULL DEFAULT '',
+  position INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

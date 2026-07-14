@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Gallery Manager | King Mozy Tours and Travel</title><link rel="icon" href="/assets/king-mozy-logo-transparent.png"><link rel="stylesheet" href="/app/admin.css"></head>
+<body>
+  <header class="admin-nav"><a href="/"><img src="/assets/king-mozy-logo-transparent.png" alt="King Mozy Tours and Travel"><span>Back to website</span></a><div><span>Signed in as site owner</span><a href="/signout-with-chatgpt?return_to=/">Sign out</a></div></header>
+  <main class="admin-shell">
+    <section class="admin-heading"><p>PRIVATE CONTENT MANAGER</p><h1>Your gallery,<br><em>your story.</em></h1><span>Upload images or videos, add video links, edit captions and remove old content. Changes appear on the public gallery automatically.</span></section>
+    <section class="upload-card">
+      <h2>Add a new moment</h2>
+      <form id="uploadForm">
+        <label>Image or video file<input type="file" name="file" accept="image/*,video/*"></label>
+        <div class="or"><span>or</span></div>
+        <label>Video link<input type="url" name="external_url" placeholder="YouTube, Vimeo or a direct video link"></label>
+        <div class="form-row"><label>Title<input name="title" required placeholder="e.g. Sunrise over Sipi"></label><label>Category<select name="category"><option>wildlife</option><option>landscapes</option><option>culture</option><option>stays</option></select></label></div>
+        <label>Accessible description<input name="alt_text" placeholder="Describe what can be seen in the image"></label>
+        <label>Display order<input type="number" name="position" value="0" min="0"></label>
+        <button type="submit">Add to gallery <span>↗</span></button><p class="form-status" id="formStatus" role="status"></p>
+      </form>
+    </section>
+    <section class="library"><div><p>LIVE LIBRARY</p><h2>Published moments</h2></div><button id="refreshButton">Refresh</button><div class="library-grid" id="libraryGrid"><p>Loading your gallery…</p></div></section>
+  </main>
+  <template id="itemTemplate"><article class="library-item"><div class="item-preview"></div><div class="item-fields"><label>Title<input data-field="title"></label><label>Category<select data-field="category"><option>wildlife</option><option>landscapes</option><option>culture</option><option>stays</option></select></label><label>Order<input type="number" min="0" data-field="position"></label><label>Description<input data-field="alt_text"></label><div><button class="save-button">Save</button><button class="delete-button">Delete</button></div></div></article></template>
+<script>
+const grid=document.getElementById('libraryGrid'),form=document.getElementById('uploadForm'),status=document.getElementById('formStatus'),template=document.getElementById('itemTemplate');
+function youtubeId(url){try{const u=new URL(url);if(u.hostname.includes('youtu.be'))return u.pathname.slice(1);if(u.hostname.includes('youtube.com'))return u.searchParams.get('v')||u.pathname.split('/embed/')[1]}catch{}return null}
+async function api(path='',options={}){const response=await fetch('/api/gallery'+path,options);if(response.status===401){location.href='/signin-with-chatgpt?return_to=/admin';throw new Error('Sign in required')}const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.error||'Something went wrong');return payload}
+async function loadItems(){grid.innerHTML='<p>Loading your gallery…</p>';try{const items=await api();grid.replaceChildren();items.forEach(item=>{const node=template.content.cloneNode(true),article=node.querySelector('article'),preview=node.querySelector('.item-preview');article.dataset.id=item.id;const yt=item.type==='video'&&youtubeId(item.url);if(yt){const img=document.createElement('img');img.src=`https://img.youtube.com/vi/${yt}/hqdefault.jpg`;preview.append(img)}else if(item.type==='video'){const video=document.createElement('video');video.src=item.url;video.muted=true;video.controls=true;preview.append(video)}else{const img=document.createElement('img');img.src=item.url;img.alt=item.alt_text||item.title;preview.append(img)}article.querySelectorAll('[data-field]').forEach(input=>input.value=item[input.dataset.field]??'');article.querySelector('.save-button').onclick=()=>saveItem(article);article.querySelector('.delete-button').onclick=()=>deleteItem(article,item.title);grid.append(node)});if(!items.length)grid.innerHTML='<p>No gallery items yet.</p>'}catch(error){grid.innerHTML=`<p>${error.message}</p>`}}
+async function saveItem(article){const button=article.querySelector('.save-button');button.disabled=true;const body={};article.querySelectorAll('[data-field]').forEach(input=>body[input.dataset.field]=input.dataset.field==='position'?Number(input.value):input.value);try{await api('/'+article.dataset.id,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify(body)});button.textContent='Saved ✓';setTimeout(()=>button.textContent='Save',1500)}catch(error){alert(error.message)}finally{button.disabled=false}}
+async function deleteItem(article,title){if(!confirm(`Remove “${title}” from the gallery?`))return;try{await api('/'+article.dataset.id,{method:'DELETE'});article.remove()}catch(error){alert(error.message)}}
+form.addEventListener('submit',async event=>{event.preventDefault();const file=form.elements.file.files[0],url=form.elements.external_url.value.trim();if(!file&&!url){status.textContent='Choose a file or add a video link.';return}status.textContent='Publishing…';const button=form.querySelector('button[type=submit]');button.disabled=true;try{await api('',{method:'POST',body:new FormData(form)});form.reset();form.elements.position.value=0;status.textContent='Published successfully.';await loadItems()}catch(error){status.textContent=error.message}finally{button.disabled=false}});
+document.getElementById('refreshButton').addEventListener('click',loadItems);loadItems();
+</script>
+</body></html>
