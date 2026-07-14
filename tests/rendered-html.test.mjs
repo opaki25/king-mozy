@@ -38,3 +38,12 @@ test("protects the private gallery manager", async () => {
   assert.equal(response.status, 302);
   assert.match(response.headers.get("location") || "", /signin-with-chatgpt/);
 });
+
+test("build includes the dedicated public pages", async () => {
+  for (const page of ["gallery.html", "journeys.html", "about.html", "contact.html"]) {
+    const html = await readFile(new URL(`../dist/client/${page}`, import.meta.url), "utf8");
+    assert.match(html, /King Mozy Tours and Travel/);
+    assert.match(html, /rel="canonical"/);
+    assert.doesNotMatch(html, /codex-preview/);
+  }
+});

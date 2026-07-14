@@ -17,6 +17,11 @@ await writeFile(new URL("index.html", dist), html);
 await writeFile(new URL("client/index.html", dist), html);
 await writeFile(new URL("admin.html", dist), admin);
 await writeFile(new URL("client/admin.html", dist), admin);
+for (const page of ["gallery.html", "journeys.html", "about.html", "contact.html"]) {
+  const content = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+  await writeFile(new URL(page, dist), content);
+  await writeFile(new URL(`client/${page}`, dist), content);
+}
 await writeFile(new URL("app/globals.css", dist), css);
 await writeFile(new URL("client/app/globals.css", dist), css);
 await writeFile(new URL("app/admin.css", dist), adminCss);
