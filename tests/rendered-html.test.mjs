@@ -40,10 +40,21 @@ test("protects the private gallery manager", async () => {
 });
 
 test("build includes the dedicated public pages", async () => {
-  for (const page of ["gallery.html", "journeys.html", "about.html", "contact.html"]) {
+  for (const page of ["gallery.html", "journeys.html", "about.html", "booking.html", "contact.html"]) {
     const html = await readFile(new URL(`../dist/client/${page}`, import.meta.url), "utf8");
     assert.match(html, /King Mozy Tours and Travel/);
     assert.match(html, /rel="canonical"/);
     assert.doesNotMatch(html, /codex-preview/);
   }
+});
+
+test("Vercel fallback gallery and mobile-first collage are included", async () => {
+  const galleryData = await readFile(new URL("../public/gallery-data.js", import.meta.url), "utf8");
+  const galleryPage = await readFile(new URL("../gallery.html", import.meta.url), "utf8");
+  const bookingPage = await readFile(new URL("../booking.html", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(galleryData, /1000593138\.jpg/);
+  assert.match(galleryPage, /gallery-data\.js/);
+  assert.match(bookingPage, /id="booking-form"/);
+  assert.match(css, /\.hero-collage\{order:1/);
 });

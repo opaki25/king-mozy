@@ -2,5 +2,27 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/gallery",
+      "destination": "https://king-mozi-uganda-travel.jonathanopaki.chatgpt.site/api/gallery"
+    },
+    {
+      "source": "/media/:path*",
+      "destination": "https://king-mozi-uganda-travel.jonathanopaki.chatgpt.site/media/:path*"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "https://king-mozi-uganda-travel.jonathanopaki.chatgpt.site/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin.html",
+      "destination": "https://king-mozi-uganda-travel.jonathanopaki.chatgpt.site/admin",
+      "permanent": false
+    }
+  ]
 }
