@@ -28,8 +28,7 @@ if (contactForm) {
     event.preventDefault();
     const data = new FormData(contactForm);
     const value = name => String(data.get(name) || "Not specified");
-    const subject = encodeURIComponent(`Tour booking request: ${value("trip")}`);
-    const body = encodeURIComponent(
+    const message =
 `Hello King Mozy Tours and Travel,
 
 I would like to plan a Uganda journey.
@@ -43,8 +42,13 @@ Guests: ${value("guests")}
 Duration: ${value("duration")}
 Stay style: ${value("stay")}
 
-Notes: ${value("notes")}`
-    );
-    location.href = `mailto:kingmozytoursandtravel@gmail.com?subject=${subject}&body=${body}`;
+Notes: ${value("notes")}`;
+    const method = event.submitter?.dataset.send || "email";
+    if (method === "whatsapp") {
+      location.href = `https://wa.me/256709599083?text=${encodeURIComponent(message)}`;
+      return;
+    }
+    const subject = encodeURIComponent(`Tour booking request: ${value("trip")}`);
+    location.href = `mailto:kingmozytoursandtravels@gmail.com?subject=${subject}&body=${encodeURIComponent(message)}`;
   });
 }

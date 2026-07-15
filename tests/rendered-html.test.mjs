@@ -29,6 +29,10 @@ test("publishes a crawlable, branded travel homepage", async () => {
   assert.match(html, /id="gallery"/);
   assert.match(html, /ZHEAD LABS/);
   assert.match(html, /id="siteNav"/);
+  assert.match(html, /kingmozytoursandtravels@gmail\.com/);
+  assert.match(html, /tel:\+256709599083/);
+  assert.match(html, /wa\.me\/256709599083/);
+  assert.doesNotMatch(html, /kingmozytoursandtravel@gmail\.com/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
 });
 
@@ -56,5 +60,7 @@ test("Vercel fallback gallery and mobile-first collage are included", async () =
   assert.match(galleryData, /1000593138\.jpg/);
   assert.match(galleryPage, /gallery-data\.js/);
   assert.match(bookingPage, /id="booking-form"/);
+  assert.match(bookingPage, /data-send="email"/);
+  assert.match(bookingPage, /data-send="whatsapp"/);
   assert.match(css, /\.hero-collage\{order:1/);
 });
